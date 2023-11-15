@@ -3,7 +3,7 @@ extern crate lazy_static;
 
 use std::error;
 
-use base64::decode;
+use base64::{engine::general_purpose, Engine as _};
 use tokio::{fs::File, io::AsyncWriteExt};
 
 mod api;
@@ -22,11 +22,9 @@ async fn translate_and_save(
 
     match res.rendered_image {
         Some(data) => {
-            let data = decode(data)?;
-
+            let data = general_purpose::STANDARD.decode(data).unwrap();
             let mut output_file = File::create(output_file).await?;
             output_file.write_all(&data).await?;
-
             Ok(())
         }
         None => Err("no data".into()),

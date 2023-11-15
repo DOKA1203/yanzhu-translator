@@ -1,4 +1,4 @@
-use base64::encode;
+use base64::{engine::general_purpose, Engine as _};
 use hmac::{Hmac, Mac};
 use sha1::Sha1;
 
@@ -22,9 +22,7 @@ pub fn sign_url(url: &str) -> Signature {
     mac.update(ts.to_string().as_bytes());
 
     let result = mac.finalize().into_bytes();
-
     Signature {
-        ts,
-        msg: encode(&result[..]),
+        ts, msg: general_purpose::STANDARD.encode(&result[..])
     }
 }
